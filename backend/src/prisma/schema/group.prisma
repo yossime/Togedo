@@ -1,0 +1,19 @@
+
+// Group model for task organization
+model Group {
+  id          String      @id @default(cuid())
+  name        String
+  hasManager  Boolean     @default(false)
+  archived    Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  owner       User        @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  members     Membership[]
+  tasks       Task[]
+  invites     InviteToken[]
+
+  @@index([ownerId])
+}

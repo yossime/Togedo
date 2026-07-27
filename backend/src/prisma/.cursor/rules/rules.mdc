@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: >-
+  Schema modelling, migrations and DB access patterns for Prisma.
+globs:
+  - "prisma/schema/**/*.prisma"
+  - "prisma/schema/schema.prisma"
+  - "seed/**/*.{ts,js}"
+  - "**/*.prisma"
+alwaysApply: true
+---
+
+# Prisma / Database Rules
+
+- **snake_case** for SQL column names, **PascalCase** model names.
+- Each model schema should be in its own file inside `prisma/schema/`, with file name matching the model name (e.g. `User.prisma`).
+- Main `schema.prisma` should use `// import` or similar strategy to include modular schema parts.
+- Use `@relation` names explicitly; avoid implicit many-to-many.
+- Keep schema comments up-to-date (`///`).
+- Migrations: one per feature, never edit an applied migration.
+- Data-access layer goes through **PrismaService** only; wrapped by repository pattern.
+

@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+
+// Enums
+enum MemberRole {
+  MEMBER
+  MANAGER
+}
+
+enum TaskStatus {
+  OPEN
+  CLAIMED
+  IN_PROGRESS
+  DONE
+}
+
+enum NotificationType {
+  TASK_CLAIMED
+  TASK_COMPLETED
+  NEW_TASK
+  INVITATION
+  DUE_DATE_REMINDER
+}

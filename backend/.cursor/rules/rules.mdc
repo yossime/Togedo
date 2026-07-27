@@ -1,0 +1,34 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: >
+  NestJS architecture & validation standards (Zod-first). Overrides global rules
+  inside backend/.
+globs:
+  - "src/**/*.ts"
+alwaysApply: true
+---
+
+# NestJS Rules (override)
+
+## Validation
+- **Use Zod for ALL DTOs**. Create them via `createZodDto()` (nestjs-zod) or a custom wrapper.
+- Replace the default `ValidationPipe` with **`ZodValidationPipe`** in `main.ts`.
+- No `class-validator` / `class-transformer` in new code (legacy allowed only until migrated).
+
+## Architecture
+- Controllers = thin routers, import DTOs directly from `@/dto`.
+- Services = stateless, injected via constructor.
+- Repositories wrap Prisma; business logic lives in services.
+
+## Code style additions
+- Function ≤ 20 LOC, single responsibility.
+- Prefix async methods with verb (`fetchUsers`).
+- Prefer `map/filter/reduce` over imperative loops.
+
+## Testing
+- Unit-test every service & controller with Zod schema mocks.
+- E2E tests per API module.

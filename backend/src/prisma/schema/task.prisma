@@ -1,0 +1,25 @@
+// Task model for group tasks
+model Task {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus  @default(OPEN)
+  dueDate     DateTime?
+  tags        String[]
+  archived    Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  group       Group       @relation(fields: [groupId], references: [id])
+  groupId     String
+  creator     User        @relation("TaskCreator", fields: [createdById], references: [id])
+  createdById String
+  assignee    User?       @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assigneeId  String?
+  notifications Notification[]
+
+  @@index([groupId])
+  @@index([createdById])
+  @@index([assigneeId])
+}

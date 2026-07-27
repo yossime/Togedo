@@ -1,0 +1,16 @@
+
+// InviteToken model for group invitations
+model InviteToken {
+  id        String      @id @default(cuid())
+  token     String      @unique
+  createdAt DateTime    @default(now())
+  expiresAt DateTime
+  used      Boolean     @default(false)
+
+  // Relations
+  group     Group       @relation(fields: [groupId], references: [id])
+  groupId   String
+
+  @@index([token])
+  @@index([groupId])
+}

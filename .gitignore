@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+**/node_modules/
+.pnp
+.pnp.*
+
+# env / secrets
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+
+# builds / output
+dist/
+**/dist/
+build/
+**/build/
+.next/
+**/.next/
+out/
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# testing
+coverage/
+.nyc_output/
+
+# OS
+.DS_Store
+Thumbs.db

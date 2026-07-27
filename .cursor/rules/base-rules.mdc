@@ -1,0 +1,56 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: >-
+  Global coding principles and tooling conventions shared across the monorepo.
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+alwaysApply: true
+---
+
+# Global Guidelines
+
+- **Package manager**: use **pnpm** workspace root.
+- **Validation**: prefer **zod** (TRPC & API layers).
+- Follow the TypeScript style guide below unless a *local rule file* overrides it.
+
+## Project Structure
+
+- `frontend/`: Next.js client (React + TypeScript).
+- `backend/`: Node.js server using NestJS.
+- `backend/prisma/`: Prisma schema, migrations, and client generation.
+
+## TypeScript Style
+
+- English everywhere, one export per file.
+- Explicit types; no `any`.
+- camelCase for variables/functions, PascalCase for classes.
+- Use early returns; avoid deep nesting (max depth: 2).
+- Avoid magic numbers: define constants.
+- Boolean prefixes: `is`, `has`, `should`, `can`.
+
+## Backend (NestJS)
+
+- Use dependency injection via NestJS providers.
+- Controllers should remain thin; delegate logic to services.
+- DTOs must be defined via **zod** schemas (prefer `nestjs-zod`).
+- Use enums for status codes, roles, etc.
+
+## Frontend (Next.js)
+
+- Use functional components and hooks (no class components).
+- Prefer server components where applicable (Next.js 13+).
+- CSS via Tailwind or module.css — never inline unless justified.
+- Organize code with `app/`, `components/`, `hooks/`, `lib/`.
+
+## Database (Prisma)
+
+- Prisma schema lives in `backend/prisma/schema.prisma`.
+- Codegen runs from `backend` via `npx prisma generate`.
+- Avoid raw SQL unless absolutely necessary.
+- Use Zod or class validators to validate Prisma inputs.
+

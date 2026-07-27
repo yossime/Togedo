@@ -1,0 +1,21 @@
+
+// User model for authentication and profile
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  name          String
+  phone         String?
+  password      String?       // Hashed password for email/password auth
+  googleId      String?       @unique // For Google OAuth
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  memberships   Membership[]  // Groups the user belongs to
+  createdTasks  Task[]       @relation("TaskCreator")
+  assignedTasks Task[]       @relation("TaskAssignee")
+  ownedGroups   Group[]      // Groups created by the user
+  notifications Notification[]
+
+  @@index([email])
+}

@@ -1,0 +1,32 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: >-
+  Next.js (App Router) & React rules. Functional RSC-first approach.
+globs:
+  - "app/**/*.{ts,tsx}"
+  - "components/**/*.{ts,tsx}"
+  - "pages/**/*.{ts,tsx}"
+alwaysApply: true
+---
+
+# Next.js / React Guidelines (override)
+
+## Rendering strategy
+- Prefer **Server Components**; minimise `use client`.
+- Wrap client components in `<Suspense>`; lazy-load with `next/dynamic`.
+
+## Styling & UX
+- TailwindCSS (mobile-first). No inline styles except quick prototyping.
+- Optimise images with `next/image`, preload critical LCP assets.
+
+## Security
+- Perform `<SECURITY_REVIEW>` for any input/HTML rendering: note XSS/CSRF mitigation.
+
+## Code conventions
+- Functional components only (override global “classes allowed” rule).
+- Descriptive const arrow functions (`const submitForm = async () => { ... }`).
+- Event handlers prefixed with `handle`.
