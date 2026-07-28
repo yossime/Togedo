@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/lib/trpc';
@@ -9,8 +8,6 @@ import {
   CheckCircleIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
-import { type AppRouter } from '@/lib/trpc';
-import { type inferProcedureOutput } from '@trpc/server';
 
 const statusColors = {
   OPEN: 'bg-gray-100 text-gray-800',

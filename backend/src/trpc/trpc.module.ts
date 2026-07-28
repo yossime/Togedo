@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { GroupsService } from '../groups/groups.service';
-import { TasksService } from '../tasks/tasks.service';
 import { TrpcService } from './trpc.service';
 import { WebsocketModule } from '../websocket/websocket.module';
 import { PrismaModule } from '../prisma/prisma.module';
-import { JwtService } from '@nestjs/jwt';
 import { AuthModule } from '../auth/auth.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GroupsModule } from '../groups/groups.module';
+import { TasksModule } from '../tasks/tasks.module';
 
 @Module({
-  imports: [WebsocketModule, PrismaModule, AuthModule, ConfigModule],
-  providers: [TrpcService, GroupsService, TasksService, JwtService, ConfigService],
+  // AuthModule exports the configured JwtModule, so TrpcService verifies
+  // tokens with the same secret used to sign them.
+  imports: [WebsocketModule, PrismaModule, AuthModule, GroupsModule, TasksModule],
+  providers: [TrpcService],
   exports: [TrpcService],
 })
-export class TrpcModule {} 
+export class TrpcModule {}

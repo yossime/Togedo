@@ -15,6 +15,9 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // Required because the backend's NestJS sources are type-checked here via
+    // the shared tRPC AppRouter type import.
+    "experimentalDecorators": true,
     "jsx": "preserve",
     "incremental": true,
     "plugins": [

@@ -6,10 +6,10 @@ let socket: Socket | null = null;
 export async function getSocket() {
   if (!socket) {
     const session = await getSession();
-    if (session?.user?.token) {
-      socket = io(process.env.NEXT_PUBLIC_API_URL!, {
+    if (session?.accessToken) {
+      socket = io(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000', {
         auth: {
-          token: `Bearer ${session.user.token}`,
+          token: `Bearer ${session.accessToken}`,
         },
         reconnection: true,
         reconnectionAttempts: 5,

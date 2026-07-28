@@ -1,6 +1,5 @@
-export enum TaskStatus {
-  OPEN = 'OPEN',
-  CLAIMED = 'CLAIMED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  DONE = 'DONE'
-} 
+// Mirrors the TaskStatus enum in the backend Prisma schema
+// (backend/src/prisma/schema/schema.prisma).
+export const TASK_STATUSES = ['OPEN', 'CLAIMED', 'IN_PROGRESS', 'DONE'] as const;
+
+export type TaskStatus = (typeof TASK_STATUSES)[number];

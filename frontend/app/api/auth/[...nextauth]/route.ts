@@ -2,15 +2,6 @@ import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-declare module 'next-auth' {
-  interface User {
-    access_token: string;
-  }
-  interface Session {
-    accessToken: string;
-  }
-}
-
 const handler = NextAuth({
   providers: [
     GoogleProvider({

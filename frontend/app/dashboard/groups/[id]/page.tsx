@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,25 +14,6 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
-interface GroupMembership {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  role: 'MANAGER' | 'MEMBER';
-}
-
-interface Task {
-  id: string;
-  title: string;
-  status: 'IN_PROGRESS' | 'DONE' | 'TODO';
-  dueDate?: string;
-  assignee?: {
-    name: string;
-  };
-}
-
 const inviteMemberSchema = z.object({
   email: z.string().email('Invalid email address'),
 });
@@ -41,6 +23,7 @@ type InviteMemberForm = z.infer<typeof inviteMemberSchema>;
 export default function GroupPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const groupId = params.id as string;
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteError, setInviteError] = useState('');
@@ -91,7 +74,7 @@ export default function GroupPage() {
   }
 
   const isManager = group.members.some(
-    (m: GroupMembership) => m.user.id === group.ownerId && m.role === 'MANAGER'
+    (m) => m.user.email === session?.user?.email && m.role === 'MANAGER'
   );
 
   return (
@@ -174,7 +157,7 @@ export default function GroupPage() {
             <h2 className="text-base font-semibold text-gray-900">Members</h2>
             <div className="mt-6 flow-root">
               <ul role="list" className="-my-5 divide-y divide-gray-200">
-                {group.members.map((membership: GroupMembership) => (
+                {group.members.map((membership) => (
                   <li key={membership.user.id} className="py-4">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
@@ -213,7 +196,7 @@ export default function GroupPage() {
             <h2 className="text-base font-semibold text-gray-900">Recent Tasks</h2>
             <div className="mt-6 flow-root">
               <ul role="list" className="-my-5 divide-y divide-gray-200">
-                {group.tasks.map((task: Task) => (
+                {group.tasks.map((task) => (
                   <li key={task.id} className="py-4">
                     <div className="relative focus-within:ring-2 focus-within:ring-primary-500">
                       <h3 className="text-sm font-semibold text-gray-800">
@@ -230,7 +213,7 @@ export default function GroupPage() {
                         {task.dueDate && (
                           <>
                             <span aria-hidden="true">&middot;</span>
-                            <p>Due {new Date(task.dueDate).toLocaleDateString()}</p>
+                            <p>Due {task.dueDate.toLocaleDateString()}</p>
                           </>
                         )}
                       </div>

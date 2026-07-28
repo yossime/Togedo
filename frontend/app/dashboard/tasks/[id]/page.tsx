@@ -15,23 +15,12 @@ import {
   TagIcon,
   CalendarIcon,
 } from '@heroicons/react/24/outline';
-import { TaskStatus } from '@/types/prisma';
-
-type Task = {
-  id: string;
-  title: string;
-  description: string | null;
-  status: TaskStatus;
-  dueDate: string | null;
-  tags: string[];
-  assignee: { name: string } | null;
-  assigneeId: string | null;
-};
+import { TASK_STATUSES, type TaskStatus } from '@/types/task';
 
 const updateTaskSchema = z.object({
   title: z.string().min(1, 'Title is required').optional(),
   description: z.string().optional(),
-  status: z.nativeEnum(TaskStatus).optional(),
+  status: z.enum(TASK_STATUSES).optional(),
   dueDate: z.string().datetime().optional(),
   tags: z.array(z.string()).optional(),
   assigneeId: z.string().nullable().optional(),
@@ -39,7 +28,7 @@ const updateTaskSchema = z.object({
 
 type UpdateTaskForm = z.infer<typeof updateTaskSchema>;
 
-const statusColors = {
+const statusColors: Record<TaskStatus, string> = {
   OPEN: 'bg-gray-100 text-gray-800',
   CLAIMED: 'bg-blue-100 text-blue-800',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
@@ -53,7 +42,7 @@ export default function TaskPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
 
-  const { data: task, isLoading } = trpc.tasks.getTask.useQuery(taskId) as { data: Task | undefined; isLoading: boolean };
+  const { data: task, isLoading } = trpc.tasks.getTask.useQuery(taskId);
   const updateTask = trpc.tasks.update.useMutation({
     onSuccess: () => {
       setIsEditing(false);
@@ -67,14 +56,14 @@ export default function TaskPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<UpdateTaskForm>({
     resolver: zodResolver(updateTaskSchema),
     defaultValues: {
       title: task?.title || undefined,
       description: task?.description || undefined,
       status: task?.status,
-      dueDate: task?.dueDate || undefined,
+      dueDate: task?.dueDate?.toISOString(),
       tags: task?.tags,
       assigneeId: task?.assigneeId || undefined,
     },
@@ -178,7 +167,7 @@ export default function TaskPage() {
                     {...register('status')}
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
                   >
-                    {Object.values(TaskStatus).map((status) => (
+                    {TASK_STATUSES.map((status) => (
                       <option key={status} value={status}>
                         {status.replace('_', ' ')}
                       </option>
@@ -249,7 +238,7 @@ export default function TaskPage() {
                   </dt>
                   <dd className="ml-auto text-sm text-gray-900">
                     {task.dueDate
-                      ? new Date(task.dueDate).toLocaleDateString()
+                      ? task.dueDate.toLocaleDateString()
                       : 'No due date'}
                   </dd>
                 </div>
