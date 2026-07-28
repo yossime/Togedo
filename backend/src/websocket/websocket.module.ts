@@ -11,7 +11,7 @@ import jwtConfig from '../config/jwt.config';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get('jwt.secret') || process.env.JWT_SECRET || 'default_development_secret_key_do_not_use_in_production',
+        secret: configService.getOrThrow<string>('jwt.secret'),
       }),
     }),
   ],

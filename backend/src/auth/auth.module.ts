@@ -17,9 +17,9 @@ import jwtConfig from '../config/jwt.config';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get('jwt.secret') || process.env.JWT_SECRET || 'default_development_secret_key_do_not_use_in_production',
-        signOptions: { 
-          expiresIn: configService.get('jwt.expiresIn') || '7d',
+        secret: configService.getOrThrow<string>('jwt.secret'),
+        signOptions: {
+          expiresIn: configService.get<string>('jwt.expiresIn'),
         },
       }),
     }),
@@ -27,6 +27,6 @@ import jwtConfig from '../config/jwt.config';
   ],
   providers: [AuthService, JwtStrategy, GoogleStrategy],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {} 

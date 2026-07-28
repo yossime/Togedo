@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { MemberRole } from '@prisma/client';
+
+export const MAX_GROUP_MEMBERS = 15;
+export const INVITE_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 @Injectable()
 export class GroupsService {
@@ -129,7 +133,7 @@ export class GroupsService {
       throw new ForbiddenException('Only managers can invite members');
     }
 
-    if (group.members.length >= 15) {
+    if (group.members.length >= MAX_GROUP_MEMBERS) {
       throw new ForbiddenException('Group has reached maximum member limit');
     }
 
@@ -147,8 +151,8 @@ export class GroupsService {
 
     const token = await this.prisma.inviteToken.create({
       data: {
-        token: Math.random().toString(36).substring(2, 15),
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        token: randomBytes(32).toString('hex'),
+        expiresAt: new Date(Date.now() + INVITE_TOKEN_TTL_MS),
         group: { connect: { id: groupId } },
       },
     });

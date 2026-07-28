@@ -1,29 +1,66 @@
+#!/usr/bin/env node
+/**
+ * One-time local setup.
+ *
+ * Writes frontend/.env.local and backend/.env with freshly generated secrets
+ * and localhost defaults. Existing files are never overwritten.
+ *
+ * Usage: node setup-env.js
+ */
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-// Generate a random secret key
 const generateSecret = () => crypto.randomBytes(32).toString('hex');
 
-// Frontend .env.local file content
-const frontendEnvContent = `# NextAuth.js Configuration
-NEXTAUTH_URL=http://192.168.1.151:3000
+const files = [
+  {
+    path: path.join(__dirname, 'frontend', '.env.local'),
+    content: `# NextAuth.js
+NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=${generateSecret()}
 
-# OAuth - Get these from Google Cloud Console
-GOOGLE_CLIENT_ID=your-google-client-id-here
-GOOGLE_CLIENT_SECRET=your-google-client-secret-here
+# Google OAuth (optional — email/password auth works without it)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 
-# API URLs
+# Backend API base URL
 NEXT_PUBLIC_API_URL=http://localhost:4000
-`;
+`,
+  },
+  {
+    path: path.join(__dirname, 'backend', '.env'),
+    content: `# PostgreSQL connection string (matches docker-compose.yml defaults)
+DATABASE_URL=postgresql://togedo:togedo@localhost:5432/togedo
 
-// Write frontend .env.local file
-const frontendEnvPath = path.join(__dirname, 'frontend', '.env.local');
-fs.writeFileSync(frontendEnvPath, frontendEnvContent);
+# JWT signing secret — required, the server refuses to start without it
+JWT_SECRET=${generateSecret()}
+JWT_EXPIRES_IN=7d
 
-console.log('Environment files generated successfully!');
-console.log('\nImportant next steps:');
-console.log('1. Update the Google OAuth credentials in frontend/.env.local');
-console.log('2. Restart your Next.js development server');
-console.log('3. Make sure your backend API is running at http://localhost:4000'); 
+# Server
+PORT=4000
+FRONTEND_URL=http://localhost:3000
+BACKEND_URL=http://localhost:4000
+
+# Google OAuth (optional — email/password auth works without it)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+`,
+  },
+];
+
+for (const file of files) {
+  const relative = path.relative(__dirname, file.path);
+  if (fs.existsSync(file.path)) {
+    console.log(`skip   ${relative} (already exists)`);
+    continue;
+  }
+  fs.writeFileSync(file.path, file.content);
+  console.log(`wrote  ${relative}`);
+}
+
+console.log('\nNext steps:');
+console.log('1. docker compose up -d          # start PostgreSQL');
+console.log('2. pnpm --filter togedo-backend prisma:generate');
+console.log('3. cd backend && npx prisma migrate dev');
+console.log('4. pnpm dev                      # frontend :3000, backend :4000');
