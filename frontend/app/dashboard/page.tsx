@@ -1,45 +1,33 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { trpc } from '@/lib/trpc';
+import type { TaskStatus } from '@/types/task';
+
+const statusColors: Record<TaskStatus, string> = {
+  OPEN: 'bg-gray-100 text-gray-800',
+  CLAIMED: 'bg-blue-100 text-blue-800',
+  IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
+  DONE: 'bg-green-100 text-green-800',
+};
+
+function CardSpinner() {
+  return (
+    <div className="flex min-h-[120px] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></div>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
-  const [recentTasks] = useState([
-    // Placeholder data - will be replaced with real data from API
-    {
-      id: '1',
-      title: 'Complete project proposal',
-      status: 'IN_PROGRESS',
-      group: { id: '1', name: 'Work Team' },
-      dueDate: '2024-03-20',
-    },
-    {
-      id: '2',
-      title: 'Buy groceries',
-      status: 'OPEN',
-      group: { id: '2', name: 'Family' },
-      dueDate: '2024-03-18',
-    },
-  ]);
+  const { data: tasks, isLoading: tasksLoading } =
+    trpc.tasks.getUserTasks.useQuery();
+  const { data: groups, isLoading: groupsLoading } =
+    trpc.groups.getUserGroups.useQuery();
 
-  const [myGroups] = useState([
-    // Placeholder data - will be replaced with real data from API
-    {
-      id: '1',
-      name: 'Work Team',
-      memberCount: 8,
-      taskCount: 12,
-    },
-    {
-      id: '2',
-      name: 'Family',
-      memberCount: 4,
-      taskCount: 5,
-    },
-  ]);
+  const recentTasks = tasks?.slice(0, 5) ?? [];
+  const myGroups = groups?.slice(0, 5) ?? [];
 
   return (
     <div className="space-y-6">
@@ -62,33 +50,45 @@ export default function DashboardPage() {
           <div className="p-6">
             <h2 className="text-base font-semibold text-gray-900">Recent Tasks</h2>
             <div className="mt-6 flow-root">
-              <ul role="list" className="-my-5 divide-y divide-gray-200">
-                {recentTasks.map((task) => (
-                  <li key={task.id} className="py-5">
-                    <div className="relative focus-within:ring-2 focus-within:ring-primary-500">
-                      <h3 className="text-sm font-semibold text-gray-800">
-                        <Link href={`/dashboard/tasks/${task.id}`} className="hover:underline">
-                          {task.title}
-                        </Link>
-                      </h3>
-                      <div className="mt-1 flex items-center gap-x-2 text-sm text-gray-500">
-                        <p>{task.group.name}</p>
-                        <span aria-hidden="true">&middot;</span>
-                        <p>Due {new Date(task.dueDate).toLocaleDateString()}</p>
+              {tasksLoading ? (
+                <CardSpinner />
+              ) : (
+                <ul role="list" className="-my-5 divide-y divide-gray-200">
+                  {recentTasks.map((task) => (
+                    <li key={task.id} className="py-5">
+                      <div className="relative focus-within:ring-2 focus-within:ring-primary-500">
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          <Link href={`/dashboard/tasks/${task.id}`} className="hover:underline">
+                            {task.title}
+                          </Link>
+                        </h3>
+                        <div className="mt-1 flex items-center gap-x-2 text-sm text-gray-500">
+                          <p>{task.group.name}</p>
+                          {task.dueDate && (
+                            <>
+                              <span aria-hidden="true">&middot;</span>
+                              <p>Due {task.dueDate.toLocaleDateString()}</p>
+                            </>
+                          )}
+                        </div>
+                        <span
+                          className={`mt-2 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${statusColors[task.status]}`}
+                        >
+                          {task.status.replace('_', ' ')}
+                        </span>
                       </div>
-                      <span
-                        className={`mt-2 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                          task.status === 'IN_PROGRESS'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}
-                      >
-                        {task.status.replace('_', ' ')}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+
+                  {recentTasks.length === 0 && (
+                    <li className="py-5">
+                      <p className="text-center text-sm text-gray-500">
+                        No tasks yet. Tasks you create or claim will show up here.
+                      </p>
+                    </li>
+                  )}
+                </ul>
+              )}
             </div>
             <div className="mt-6">
               <Link
@@ -106,24 +106,36 @@ export default function DashboardPage() {
           <div className="p-6">
             <h2 className="text-base font-semibold text-gray-900">My Groups</h2>
             <div className="mt-6 flow-root">
-              <ul role="list" className="-my-5 divide-y divide-gray-200">
-                {myGroups.map((group) => (
-                  <li key={group.id} className="py-5">
-                    <div className="relative focus-within:ring-2 focus-within:ring-primary-500">
-                      <h3 className="text-sm font-semibold text-gray-800">
-                        <Link href={`/dashboard/groups/${group.id}`} className="hover:underline">
-                          {group.name}
-                        </Link>
-                      </h3>
-                      <div className="mt-1 flex items-center gap-x-2 text-sm text-gray-500">
-                        <p>{group.memberCount} members</p>
-                        <span aria-hidden="true">&middot;</span>
-                        <p>{group.taskCount} tasks</p>
+              {groupsLoading ? (
+                <CardSpinner />
+              ) : (
+                <ul role="list" className="-my-5 divide-y divide-gray-200">
+                  {myGroups.map((group) => (
+                    <li key={group.id} className="py-5">
+                      <div className="relative focus-within:ring-2 focus-within:ring-primary-500">
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          <Link href={`/dashboard/groups/${group.id}`} className="hover:underline">
+                            {group.name}
+                          </Link>
+                        </h3>
+                        <div className="mt-1 flex items-center gap-x-2 text-sm text-gray-500">
+                          <p>{group._count.members} members</p>
+                          <span aria-hidden="true">&middot;</span>
+                          <p>{group._count.tasks} tasks</p>
+                        </div>
                       </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+
+                  {myGroups.length === 0 && (
+                    <li className="py-5">
+                      <p className="text-center text-sm text-gray-500">
+                        No groups yet. Create one to start collaborating.
+                      </p>
+                    </li>
+                  )}
+                </ul>
+              )}
             </div>
             <div className="mt-6">
               <Link
@@ -138,4 +150,4 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-} 
+}
