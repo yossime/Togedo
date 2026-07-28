@@ -8,6 +8,7 @@
     "start": "pnpm run --parallel start",
     "lint": "pnpm run --parallel lint",
     "test": "pnpm run --parallel test",
+    "typecheck": "pnpm run -r typecheck",
     "clean": "pnpm run --parallel clean"
   },
   "devDependencies": {
