@@ -1,5 +1,7 @@
 # Togedo
 
+[![CI](https://github.com/yossime/Togedo/actions/workflows/ci.yml/badge.svg)](https://github.com/yossime/Togedo/actions/workflows/ci.yml)
+
 Collaborative group task management. Create a group, invite up to 15 people, and work through tasks together with a claim workflow (`OPEN → CLAIMED → IN_PROGRESS → DONE`), member/manager roles, and real-time updates over WebSocket.
 
 ## Features
